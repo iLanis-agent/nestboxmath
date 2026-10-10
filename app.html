@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nestbox math - hole match, box check, sheet yield</title>
+<style>
+  :root { --ink:#232810; --accent:#6b7a2a; --paper:#fafaf4; --card:#ffffff; --line:#e3e5cd; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Georgia, 'Times New Roman', serif; background:var(--paper); color:var(--ink); }
+  header { padding:2rem 1.25rem 1rem; max-width:960px; margin:0 auto; }
+  h1 { font-size:1.9rem; margin:0 0 .35rem; }
+  header p { margin:.25rem 0; color:#4a511f; max-width:46rem; line-height:1.45; }
+  .norms { font-size:.9rem; color:#565e26; margin-top:.6rem; }
+  main { max-width:960px; margin:0 auto; padding:0 1.25rem 3rem; display:grid; gap:1.25rem; }
+  @media (min-width:820px){ main { grid-template-columns:1fr 1fr 1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:1.1rem 1.1rem 1.25rem; }
+  .card h2 { font-size:1.15rem; margin:.1rem 0 .5rem; }
+  .card p.desc { font-size:.9rem; color:#565e26; margin:.2rem 0 .8rem; line-height:1.4; }
+  label { display:block; font-size:.85rem; margin:.55rem 0 .15rem; color:#434a1d; }
+  input { width:100%; padding:.45rem .5rem; font-size:1rem; border:1px solid var(--line); border-radius:6px; font-family:inherit; background:#fff; }
+  button { margin-top:.8rem; width:100%; padding:.55rem; font-size:1rem; font-family:inherit; background:var(--accent); color:#fff; border:0; border-radius:6px; cursor:pointer; }
+  button:hover { background:#57641f; }
+  .out { margin-top:.9rem; font-size:.95rem; line-height:1.5; min-height:3.2rem; }
+  .err { color:#a02323; }
+  footer { max-width:960px; margin:0 auto; padding:0 1.25rem 2.5rem; font-size:.85rem; color:#a3a877; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Nestbox math</h1>
+  <p>Match the hole to the birds, check the box, count the sheet. Exact arithmetic, every borrowed number labeled.</p>
+  <p class="norms">Labeled norms: hole ranges from blue tit 25-28 mm to starling 45-48 mm; tit boxes want about a 10-12 cm floor and 20 cm depth; sheet yield is an area estimate.</p>
+</header>
+<main>
+  <section class="card" id="hole">
+    <h2>Hole match</h2>
+    <p class="desc">Hole millimeters become the species that fit through.</p>
+    <label for="h-mm">Entrance hole (mm)</label>
+    <input id="h-mm" type="number" step="0.5" min="0" value="32">
+    <button id="h-go">Match the hole</button>
+    <div class="out" id="h-out"></div>
+  </section>
+
+  <section class="card" id="box">
+    <h2>Box check</h2>
+    <p class="desc">Floor and depth become a size verdict by bird.</p>
+    <label for="b-floor">Interior floor (cm)</label>
+    <input id="b-floor" type="number" step="0.5" min="0" value="11">
+    <label for="b-hgt">Interior depth (cm)</label>
+    <input id="b-hgt" type="number" step="0.5" min="0" value="25">
+    <button id="b-go">Check the box</button>
+    <div class="out" id="b-out"></div>
+  </section>
+
+  <section class="card" id="sheet">
+    <h2>Sheet yield</h2>
+    <p class="desc">Sheet dimensions become a box count by area.</p>
+    <label for="s-sw">Sheet width (cm)</label>
+    <input id="s-sw" type="number" step="1" min="0" value="122">
+    <label for="s-sl">Sheet length (cm)</label>
+    <input id="s-sl" type="number" step="1" min="0" value="244">
+    <label for="s-w">Box width (cm)</label>
+    <input id="s-w" type="number" step="0.5" min="0" value="12">
+    <label for="s-d">Box depth (cm)</label>
+    <input id="s-d" type="number" step="0.5" min="0" value="12">
+    <label for="s-h">Box height (cm)</label>
+    <input id="s-h" type="number" step="0.5" min="0" value="25">
+    <button id="s-go">Count the boxes</button>
+    <div class="out" id="s-out"></div>
+  </section>
+</main>
+<footer>Built by the app factory. <a href="index.html">About</a> &middot; <a href="https://github.com/iLanis-agent/nestboxmath">Source</a></footer>
+<script src="engine.js"></script>
+<script>
+function num(id){ return parseFloat(document.getElementById(id).value); }
+function show(id, r, render){
+  var el = document.getElementById(id);
+  if (r.error) { el.textContent = r.error; el.classList.add('err'); }
+  else { el.textContent = render(r); el.classList.remove('err'); }
+}
+document.getElementById('h-go').addEventListener('click', function(){
+  show('h-out', NestboxMath.holeMatch(num('h-mm')), NestboxMath.renderHole);
+});
+document.getElementById('b-go').addEventListener('click', function(){
+  show('b-out', NestboxMath.boxCheck(num('b-floor'),num('b-hgt')), NestboxMath.renderBox);
+});
+document.getElementById('s-go').addEventListener('click', function(){
+  show('s-out', NestboxMath.sheetBoxes(num('s-sw'),num('s-sl'),num('s-w'),num('s-d'),num('s-h')), NestboxMath.renderSheet);
+});
+</script>
+</body>
+</html>
